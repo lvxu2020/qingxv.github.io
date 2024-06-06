@@ -1,0 +1,91 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>QTableWidget 效果展示 </title>
+    <link rel="stylesheet" href="../../../styles.css">
+    <style>
+        ul {
+            list-style-type: none; /* 移除默认的列表样式 */
+            padding-left: 0;
+        }
+        ul ul {
+            padding-left: 15px; /* 子列表的缩进 */
+        }
+        ul ul ul {
+            padding-left: 15px; /* 子子列表的缩进 */
+        }
+
+        ul ul ul ul {
+            padding-left: 15px; /* 子子列表的缩进 */
+        }
+        
+    </style>
+</head>
+<body>
+    <header>
+        <h1>QTableWidget 效果展示</h1>
+    </header>
+    <main>
+        <div id="markdown-content"></div>
+    </main>
+    <div class="lightbox-overlay" id="lightbox-overlay">
+        <img id="lightbox-image" src="" alt="">
+    </div>
+    <script src="https://cdn.jsdelivr.net/npm/showdown/dist/showdown.min.js"></script>
+    <script>
+        document.addEventListener("DOMContentLoaded", function() {
+            fetch('table_widget.md')
+                .then(response => response.text())
+                .then(text => {
+                    const converter = new showdown.Converter();
+                    const html = converter.makeHtml(text);
+                    document.getElementById('markdown-content').innerHTML = html;
+
+                    // 添加 ID 到生成的标题
+                    document.querySelectorAll('h1, h2, h3, h4, h5, h6').forEach(header => {
+                        // 从已有的锚点标签中获取ID
+                        const anchor = header.querySelector('a');
+                        if (anchor) {
+                            header.id = anchor.id;
+                        }
+                    });
+
+                    // 平滑滚动
+                    const links = document.querySelectorAll('a[href^="#"]');
+                    for (const link of links) {
+                        link.addEventListener('click', function (event) {
+                            event.preventDefault();
+                            const targetId = this.getAttribute('href').substring(1);
+                            const targetElement = document.getElementById(targetId);
+                            if (targetElement) {
+                                window.scrollTo({
+                                    top: targetElement.offsetTop,
+                                    behavior: 'smooth'
+                                });
+                            }
+                        });
+                    }
+
+                     // 添加点击图片放大查看功能
+                     document.querySelectorAll('#markdown-content img').forEach(img => {
+                        img.style.cursor = 'pointer';
+                        img.addEventListener('click', function() {
+                            const overlay = document.getElementById('lightbox-overlay');
+                            const lightboxImage = document.getElementById('lightbox-image');
+                            lightboxImage.src = this.src;
+                            overlay.style.display = 'flex';
+                        });
+                    });
+
+                    // 点击关闭放大图片
+                    document.getElementById('lightbox-overlay').addEventListener('click', function() {
+                        this.style.display = 'none';
+                    });
+                })
+                .catch(error => console.error('Error loading Markdown file:', error));
+        });
+    </script>
+</body>
+</html>
